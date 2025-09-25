@@ -32,6 +32,15 @@ export class AuthorController extends Controller {
     @Body() requestBody: AuthorDTO
   ): Promise<AuthorDTO> {
     const { firstName, lastName } = requestBody;
+    if (!firstName || !lastName) {
+      let error: CustomError = new Error(
+        "First name and last name are required"
+      );
+
+      error.status = 400;
+
+      throw error;
+    }
     return authorService.createAuthor(firstName, lastName);
   }
 
@@ -48,6 +57,15 @@ export class AuthorController extends Controller {
     @Body() requestBody: AuthorDTO
   ): Promise<AuthorDTO> {
     const { firstName, lastName } = requestBody;
+    if (!firstName || !lastName) {
+      let error: CustomError = new Error(
+        "First name and last name are required"
+      );
+
+      error.status = 400;
+
+      throw error;
+    }
     let author = await authorService.updateAuthor(id, firstName, lastName);
     if (author === null) {
       let error: CustomError = new Error("Author not found");
