@@ -7,6 +7,42 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"BookCopyStatus": {
+				"enum": [
+					0,
+					1,
+					2,
+					3,
+					4,
+					5
+				],
+				"type": "number"
+			},
+			"BookCopyDTO": {
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"bookId": {
+						"type": "number",
+						"format": "double"
+					},
+					"available": {
+						"type": "boolean"
+					},
+					"state": {
+						"$ref": "#/components/schemas/BookCopyStatus"
+					}
+				},
+				"required": [
+					"bookId",
+					"available",
+					"state"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"AuthorDTO": {
 				"properties": {
 					"id": {
@@ -50,9 +86,35 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"AuthenticationDTO": {
+				"properties": {
+					"grant_type": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"grant_type",
+					"username",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"jwt": {
+				"type": "apiKey",
+				"in": "header",
+				"name": "Authorization"
+			}
+		}
 	},
 	"info": {
 		"title": "express-typescript",
@@ -63,6 +125,156 @@
 		"contact": {}
 	},
 	"paths": {
+		"/book-copies": {
+			"get": {
+				"operationId": "GetAllBookCopies",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/BookCopyDTO"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"BookCopys"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateBookCopy",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BookCopyDTO"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"BookCopys"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BookCopyDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/book-copies/{id}": {
+			"get": {
+				"operationId": "GetBookCopyById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BookCopyDTO"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"BookCopys"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateBookCopy",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BookCopyDTO"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"BookCopys"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BookCopyDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteBookCopy",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"BookCopys"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
 		"/books": {
 			"get": {
 				"operationId": "GetAllBooks",
@@ -120,7 +332,7 @@
 		},
 		"/books/{id}": {
 			"get": {
-				"operationId": "GetBookById",
+				"operationId": "GetBoodById",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -188,6 +400,29 @@
 						}
 					}
 				}
+			},
+			"delete": {
+				"operationId": "DeleteBook",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Books"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
 			}
 		},
 		"/authors": {
@@ -211,7 +446,14 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"write",
+							"read"
+						]
+					}
+				],
 				"parameters": []
 			},
 			"post": {
@@ -231,7 +473,14 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"write",
+							"read"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -263,7 +512,14 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"write",
+							"read"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -286,7 +542,14 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"write",
+							"read"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -298,6 +561,90 @@
 						}
 					}
 				]
+			},
+			"patch": {
+				"operationId": "UpdateAuthor",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthorDTO"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Authors"
+				],
+				"security": [
+					{
+						"jwt": [
+							"write",
+							"read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AuthorDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth": {
+			"post": {
+				"operationId": "Authenticate",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"token": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"token"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AuthenticationDTO"
+							}
+						}
+					}
+				}
 			}
 		}
 	},

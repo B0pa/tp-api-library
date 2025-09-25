@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 // Interface pour les erreurs
 export type CustomError = Error & {
   status?: number;
-};
+}
 
 // Middleware pour gérer les erreurs
 const errorHandler = (
